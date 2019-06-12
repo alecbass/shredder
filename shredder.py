@@ -17,18 +17,24 @@ def get_sentences_from_tables(document, wordsToCapture):
         for row in table.rows:
             for cell in row.cells:
                 for paragraph in cell.paragraphs:
-                    splitLowered = paragraph.text.lower().split(" ")
-                    if any(word in paragraph.text for word in wordsToCapture):
-                        validSentences.append(paragraph.text)
+                    for sentence in paragraph.text.split("."):
+                        splitLowered = sentence.lower().split(" ")
+                        for word in splitLowered:
+                            if word in wordsToCapture:
+                                validSentences.append(sentence)
+                        # if any(word in paragraph.text for word in wordsToCapture):
+                        #     validSentences.append(paragraph.text)
     return validSentences
 
 def find_sentences_from_text(text: str, wordsToCapture):
-    sentences = text.split(".")
     validSentences = []
-    for sentence in sentences:
+    for sentence in text.split("."):
         splitLowered = sentence.lower().split(" ")
-        if any(word in splitLowered for word in wordsToCapture):
-            validSentences.append(sentence)
+        for word in splitLowered:
+            if word in wordsToCapture:
+                validSentences.append(sentence)
+        # if any(word in splitLowered for word in wordsToCapture):
+        #     validSentences.append(sentence)
     return validSentences
 
 def find_sentences_from_paragraphs(document, wordsToCapture):
@@ -38,22 +44,18 @@ def find_sentences_from_paragraphs(document, wordsToCapture):
             validParagraphs.append(paragraph.text)
     return validParagraphs
 
-def write_sentences_to_docx(fileName, sentences):
+def write_sentences_to_docx(fileName: str, sentences: list):
     document = Document()
     for sentence in sentences:
         document.add_paragraph(sentence)
     document.save(fileName)
 
-def begin_shred(fileName: str, wordsToCapture: list):
+def begin_shred(fileName: str, wordsToCapture: list, addTables: bool):
     document = Document(fileName)
-    validSentences = get_sentences_from_tables(document, wordsToCapture)
-    validSentences.append(find_sentences_from_paragraphs(document, wordsToCapture))
+    validSentences = []
+    if addTables:
+        validSentences.append(get_sentences_from_tables(document, wordsToCapture))
+    validSentences.append(find_sentences_from_text(all_text(read(document)), wordsToCapture))
     outputFileName = fileName[0: len(fileName) - 5] + "_output.docx"
     write_sentences_to_docx(outputFileName, validSentences)
     print("Wrote file to " + outputFileName)
-
-if __name__ == "__main__":
-    fileName = sys.argv[1] if (len(sys.argv) > 1 and sys.argv[1].endswith(".docx")) else "clean_tender.docx"
-    wordsToCapture = sys.argv[2:] if (len(sys.argv) > 2) else ["should", "could", "with", "has"]
-    
-    begin_shred(fileName)
