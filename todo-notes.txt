@@ -1,0 +1,5 @@
+By Alec:
+
+At the moment all it does it get the sentences from paragraphs and tables which have the supplied words to capture. Aside from that
+there is no actual thought process and you can get sentences like "The tenderer should specify": with no further context, which isn't
+very helpful.
