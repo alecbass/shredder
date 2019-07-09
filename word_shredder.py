@@ -38,8 +38,8 @@ def paragraphs_to_sentences(paragraphs: list, wordsToCapture: tuple):
                     sentences.append(sentence)
     return sentences
 
-def begin_shred(fileName: str, wordsToCapture: tuple, addTables: bool):
-    document = Document(fileName)
+def begin_shred(filename: str, wordsToCapture: tuple):
+    document = Document(filename)
     validSentences: list = []
     paragraphs = start(document, wordsToCapture)
     sentences = paragraphs_to_sentences(paragraphs, wordsToCapture)

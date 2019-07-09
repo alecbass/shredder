@@ -1,2 +1,2 @@
-pip freeze > uninstall.txt
-pip uninstall -r uninstall.txt -y
+pip freeze > requirements/common.txt
+pip uninstall -r requirements.txt -y
