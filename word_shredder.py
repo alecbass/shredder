@@ -38,10 +38,40 @@ def paragraphs_to_sentences(paragraphs: list, wordsToCapture: tuple):
                     sentences.append(sentence)
     return sentences
 
-def begin_shred(filename: str, wordsToCapture: tuple):
+######### COMPLIANCE RULES
+
+def read_compliance_rules(document: Document):
+    rules = []
+    for para in document.paragraphs:
+        for i in range(15):
+            for j in range(15):
+                if "{0}.{1}".format(i, j) in para.text:
+                    rules.append(para.text)
+                    print(para.text)
+    for table in document.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for i in range(15):
+                    for j in range(15):
+                        if "{0}.{1}".format(i, j) in cell.text:
+                            rules.append(cell.text)
+                            print(cell.text)
+    file = open("rules.txt", "w")
+    for rule in rules:
+        # TODO(alec): Change this as writing to a .txt is placeholder
+        file.write(rule + "\n\n")
+    file.close()
+    return rules
+
+######### MAIN
+
+def begin_shred(filename: str, mode: str, wordsToCapture: tuple):
     document = Document(filename)
-    validSentences: list = []
-    paragraphs = start(document, wordsToCapture)
-    sentences = paragraphs_to_sentences(paragraphs, wordsToCapture)
-    # tada
-    write_sentences_to_docx(filename, sentences)
+    if mode == "capture":
+        validSentences: list = []
+        paragraphs = start(document, wordsToCapture)
+        sentences = paragraphs_to_sentences(paragraphs, wordsToCapture)
+        # tada
+        write_sentences_to_docx(filename, sentences)
+    elif mode == "compliance":
+        rules = read_compliance_rules(document)
