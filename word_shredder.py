@@ -6,7 +6,7 @@ def write_sentences_to_docx(fileName: str, sentences: list):
     document = Document()
     for sentence in sentences:
         document.add_paragraph(sentence)
-    document.save(fileName)
+    document.save(fileName[:-5] + "_output.docx")
 
 
 ############### 08/07/2019 Redo
@@ -44,4 +44,4 @@ def begin_shred(filename: str, wordsToCapture: tuple):
     paragraphs = start(document, wordsToCapture)
     sentences = paragraphs_to_sentences(paragraphs, wordsToCapture)
     # tada
-    write_sentences_to_docx("output.docx", sentences)
+    write_sentences_to_docx(filename, sentences)
