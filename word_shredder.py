@@ -1,6 +1,7 @@
 from docx import Document
 import os
 import sys
+from utils import remove_duplicates_from_list
 
 def write_sentences_to_docx(fileName: str, sentences: list):
     document = Document()
@@ -8,6 +9,11 @@ def write_sentences_to_docx(fileName: str, sentences: list):
         document.add_paragraph(sentence)
     document.save(fileName[:-5] + "_output.docx")
 
+def write_sentences_to_text(fileName: str, sentences: list):
+    file = open(fileName, "w")
+    for sentence in sentences:
+        file.write(sentence + "\n\n")
+    file.close()
 
 ############### 08/07/2019 Redo
 
@@ -40,27 +46,33 @@ def paragraphs_to_sentences(paragraphs: list, wordsToCapture: tuple):
 
 ######### COMPLIANCE RULES
 
+heading_limit = 15
+
+def is_rule_in_string(text: str, heading_point: int, subheading_point: int):
+    """
+    Returns true if the paragraph begins with a short or long rule i.e. "1." or "1.1" and if the rule isn't the entire paragraph
+    """
+    short_rule = "{}.".format(heading_point)
+    long_rule = "{0}.{1}".format(heading_point, subheading_point)
+    # NOTE(alec): Going (text != short_rule or text != long_rule) didn't work so I just used a length check
+    return (text.startswith(short_rule) or text.startswith(long_rule)) and len(text) > 3
+
 def read_compliance_rules(document: Document):
     rules = []
     for para in document.paragraphs:
-        for i in range(15):
-            for j in range(15):
-                if "{0}.{1}".format(i, j) in para.text:
+        for i in range(heading_limit):
+            for j in range(heading_limit):
+                if is_rule_in_string(para.text, i, j):
                     rules.append(para.text)
-                    print(para.text)
     for table in document.tables:
         for row in table.rows:
             for cell in row.cells:
-                for i in range(15):
-                    for j in range(15):
-                        if "{0}.{1}".format(i, j) in cell.text:
+                for i in range(heading_limit):
+                    for j in range(heading_limit):
+                        if is_rule_in_string(cell.text, i, j):
                             rules.append(cell.text)
-                            print(cell.text)
-    file = open("rules.txt", "w")
-    for rule in rules:
-        # TODO(alec): Change this as writing to a .txt is placeholder
-        file.write(rule + "\n\n")
-    file.close()
+    rules = remove_duplicates_from_list(rules)
+    write_sentences_to_text("rules.txt", rules)
     return rules
 
 ######### MAIN
